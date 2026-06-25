@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using RentalService.Models;
+using RentalService.Services;
 
 namespace RentalService.Controllers;
 
@@ -11,10 +12,12 @@ namespace RentalService.Controllers;
 public class BookingsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly MockEmailService _emailService;
 
-    public BookingsController(AppDbContext context)
+    public BookingsController(AppDbContext context, MockEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     [HttpPost]
@@ -168,10 +171,12 @@ public class BookingsController : ControllerBase
             return Forbid();
 
         if (booking.Status == BookingStatus.completed)
-            return BadRequest("Completed bookings cannot be cancelled.");
+            return BadRequest("завершенные бронирования не могут быть отменены");
 
         booking.Status = BookingStatus.cancelled;
         await _context.SaveChangesAsync();
+
+        _emailService.SendBookingCancelledEmail(booking);
 
         return Ok(ToResponse(booking));
     }
