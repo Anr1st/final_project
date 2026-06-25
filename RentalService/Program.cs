@@ -40,6 +40,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<RentalService.Services.MockPaymentService>();
 builder.Services.AddScoped<RentalService.Services.MockEmailService>();
+builder.Services.AddScoped<RentalService.Services.MockVerificationService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
