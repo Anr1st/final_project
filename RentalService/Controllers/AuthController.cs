@@ -32,14 +32,14 @@ public class AuthController : ControllerBase
             string.IsNullOrWhiteSpace(request.Password) ||
             string.IsNullOrWhiteSpace(request.Name))
         {
-            return BadRequest("Email, пароль и имя обязательны для заполнения");
+            return BadRequest("Email, РїР°СЂРѕР»СЊ Рё РёРјСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ");
         }
 
         var email = request.Email.Trim().ToLowerInvariant();
         var emailExists = await _db.Users.AnyAsync(u => u.Email == email);
         if (emailExists)
         {
-            return Conflict("этот email занят другим пользователем");
+            return Conflict("Р­С‚РѕС‚ email Р·Р°РЅСЏС‚ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј");
         }
 
         var user = new User
@@ -73,7 +73,7 @@ public class AuthController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
-            return BadRequest("email и пароль обязательны для заполнения");
+            return BadRequest("email Рё РїР°СЂРѕР»СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ");
         }
 
         var email = request.Email.Trim().ToLowerInvariant();
@@ -81,12 +81,12 @@ public class AuthController : ControllerBase
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
-            return Unauthorized("неверный email или пароль");
+            return Unauthorized("РќРµРІРµСЂРЅС‹Р№ email РёР»Рё РїР°СЂРѕР»СЊ");
         }
 
         if (user.IsBlocked)
         {
-            return Forbid();
+            return StatusCode(403, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРј");
         }
 
         return Ok(new LoginResponse(CreateToken(user)));

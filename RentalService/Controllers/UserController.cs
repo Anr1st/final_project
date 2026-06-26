@@ -19,6 +19,23 @@ public class UsersController : ControllerBase
         _verificationService = verificationService;
     }
 
+    [HttpPost("verify-email")]
+    [HttpPost("api/v1/users/verify-email")]
+    [Authorize]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        user.IsVerified = true;
+        await _db.SaveChangesAsync();
+
+        return Ok(ToResponse(user));
+    }
+
     [HttpGet("profile")]
     [HttpGet("api/v1/users/profile")]
     [Authorize]
@@ -50,7 +67,7 @@ public class UsersController : ControllerBase
             var emailExists = await _db.Users.AnyAsync(u => u.Email == email && u.Id != user.Id);
             if (emailExists)
             {
-                return Conflict("этот email занят другим пользователем");
+                return Conflict("Р­С‚РѕС‚ email Р·Р°РЅСЏС‚ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј");
             }
 
             user.Email = email;
@@ -80,7 +97,7 @@ public class UsersController : ControllerBase
         var verified = _verificationService.VerifyIdentity(user);
         if (!verified)
         {
-            return BadRequest("ошибка верификации");
+            return BadRequest("РћС€РёР±РєР° РІРµСЂРёС„РёРєР°С†РёРё");
         }
 
         user.IsVerified = true;
@@ -103,6 +120,11 @@ public class UsersController : ControllerBase
     private static UserResponse ToResponse(User user)
     {
         return new UserResponse(user.Id, user.Email, user.FullName, user.Role, user.IsVerified, user.IsBlocked, user.CreatedAt);
+    }
+
+    public class VerifyEmailRequest
+    {
+        public string Code { get; set; } = string.Empty;
     }
 
     public class UpdateProfileRequest

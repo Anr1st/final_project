@@ -6,13 +6,13 @@ public class MockPaymentService
 {
     public bool ProcessPayment(Payment payment)
     {
-        Console.WriteLine($"[MockPaymentService] Платёж {payment.Id} для бронирования {payment.BookingId} выполнен успешно.");
+        Console.WriteLine($"[MockPaymentService] РџР»Р°С‚С‘Р¶ {payment.Id} РґР»СЏ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ {payment.BookingId} РІС‹РїРѕР»РЅРµРЅ СѓСЃРїРµС€РЅРѕ.");
         return true;
     }
 
-    public string ProcessPaymentStatus(Payment payment)
+    public bool RefundPayment(Payment payment)
     {
-        Console.WriteLine($"[MockPaymentService] Платёж {payment.Id} для бронирования {payment.BookingId} выполнен успешно.");
-        return "succeeded";
+        Console.WriteLine($"[MockPaymentService] Р’РѕР·РІСЂР°С‚ СЃСЂРµРґСЃС‚РІ РїРѕ РїР»Р°С‚РµР¶Сѓ {payment.Id} (Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ {payment.BookingId}) РІС‹РїРѕР»РЅРµРЅ СѓСЃРїРµС€РЅРѕ.");
+        return true;
     }
 }

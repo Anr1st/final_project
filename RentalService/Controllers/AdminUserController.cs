@@ -28,6 +28,20 @@ public class AdminUsersController : ControllerBase
         return Ok(users);
     }
 
+    [HttpGet("admin/users/pending")]
+    [HttpGet("api/v1/admin/users/pending")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> GetPendingUsers()
+    {
+        var users = await _db.Users
+            .Where(u => !u.IsVerified && !u.IsBlocked)
+            .OrderByDescending(u => u.CreatedAt)
+            .Select(u => new AdminUserResponse(u.Id, u.Email, u.FullName, u.Role, u.IsVerified, u.IsBlocked, u.CreatedAt))
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
     [HttpPost("admin/users/{id:guid}/verify")]
     [HttpPut("admin/users/{id:guid}/verify")]
     [HttpPost("api/v1/admin/users/{id:guid}/verify")]

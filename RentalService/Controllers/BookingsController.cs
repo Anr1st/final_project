@@ -13,11 +13,13 @@ public class BookingsController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly MockEmailService _emailService;
+    private readonly MockPaymentService _paymentService;
 
-    public BookingsController(AppDbContext context, MockEmailService emailService)
+    public BookingsController(AppDbContext context, MockEmailService emailService, MockPaymentService paymentService)
     {
         _context = context;
         _emailService = emailService;
+        _paymentService = paymentService;
     }
 
     [HttpPost]
@@ -27,6 +29,12 @@ public class BookingsController : ControllerBase
         var currentUserId = GetCurrentUserId();
         if (currentUserId == null)
             return Unauthorized();
+
+        var renter = await _context.Users.FindAsync(currentUserId.Value);
+        if (renter == null || renter.IsBlocked)
+            return Forbid();
+        if (!renter.IsVerified)
+            return StatusCode(403, "Бронирование доступно только верифицированным пользователям.");
 
         if (request.CheckIn >= request.CheckOut)
             return BadRequest("Дата заезда должна быть раньше даты выезда.");
@@ -48,7 +56,7 @@ public class BookingsController : ControllerBase
         foreach (var existing in existingBookings)
         {
             if (DatesOverlap(existing.CheckIn, existing.CheckOut, request.CheckIn, request.CheckOut))
-                return BadRequest("Даты пересекаются с уже существующим бронированием.");
+                return Conflict("Даты пересекаются с уже существующим бронированием.");
         }
 
         decimal subtotal = 0;
@@ -83,6 +91,8 @@ public class BookingsController : ControllerBase
 
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
+
+        _emailService.SendBookingCreatedEmail(booking);
 
         return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, ToResponse(booking));
     }
@@ -162,6 +172,7 @@ public class BookingsController : ControllerBase
 
         var booking = await _context.Bookings
             .Include(b => b.Property)
+            .Include(b => b.Payment)
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
@@ -171,9 +182,19 @@ public class BookingsController : ControllerBase
             return Forbid();
 
         if (booking.Status == BookingStatus.completed)
-            return BadRequest("завершенные бронирования не могут быть отменены");
+            return BadRequest("Завершенные бронирования не могут быть отменены");
+
+        if (booking.Status == BookingStatus.cancelled)
+            return BadRequest("Бронирование уже отменено");
 
         booking.Status = BookingStatus.cancelled;
+
+        if (booking.Payment != null && booking.Payment.Status == PaymentStatus.succeeded)
+        {
+            _paymentService.RefundPayment(booking.Payment);
+            booking.Payment.Status = PaymentStatus.refunded;
+        }
+
         await _context.SaveChangesAsync();
 
         _emailService.SendBookingCancelledEmail(booking);

@@ -9,6 +9,11 @@ public class MockEmailService
         Console.WriteLine($"[MockEmailService] Письмо о регистрации на {email}: Добро пожаловать, {fullName}. Ваш аккаунт зарегистрирован и верифицирован.");
     }
 
+    public void SendBookingCreatedEmail(Booking booking)
+    {
+        Console.WriteLine($"[MockEmailService] Письмо арендодателю: получен новый запрос на бронирование {booking.Id}. Даты: {booking.CheckIn} — {booking.CheckOut}.");
+    }
+
     public void SendBookingConfirmedEmail(Booking booking)
     {
         Console.WriteLine($"[MockEmailService] Письмо об оплате: бронирование {booking.Id} успешно оплачено. Сумма: {booking.TotalPrice} руб.");
