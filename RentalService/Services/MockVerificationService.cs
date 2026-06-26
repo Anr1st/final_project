@@ -6,7 +6,7 @@ public class MockVerificationService
 {
     public bool VerifyIdentity(User user)
     {
-        Console.WriteLine($"[MockVerificationService] Верификация личности для пользователя {user.Id} выполнена успешно.");
+        Console.WriteLine($"[MockVerificationService] Р’РµСЂРёС„РёРєР°С†РёСЏ Р»РёС‡РЅРѕСЃС‚Рё РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ {user.Id} РІС‹РїРѕР»РЅРµРЅР° СѓСЃРїРµС€РЅРѕ.");
         return true;
     }
 }
