@@ -139,3 +139,4 @@ C:\Users\Anr1st\Desktop\final_project\RentalService\obj\Debug\net9.0\ref\RentalS
 C:\Users\Anr1st\Desktop\final_project\RentalService\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\Anr1st\Desktop\final_project\RentalService\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\Anr1st\Desktop\final_project\RentalService\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\Anr1st\Desktop\final_project\RentalService\bin\Debug\net9.0\global.json
